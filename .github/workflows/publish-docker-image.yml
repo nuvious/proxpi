@@ -57,7 +57,7 @@ jobs:
         image: "nuvious/proxpi:${{ github.ref_name }}"
         options: |
           --platform linux/arm64
-          --volume "$(pwd)/tests:/srv/tests"
+          --volume "./tests:/srv/tests"
           --entrypoint ''
         run: |
           uname -m
