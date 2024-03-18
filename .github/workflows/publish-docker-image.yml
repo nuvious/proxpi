@@ -31,7 +31,8 @@ jobs:
         context: .
         load: true
         tags: nuvious/proxpi:${{ github.ref_name }}
-        platforms: linux/amd64,linux/arm64
+        platforms: linux/amd64
+        push: false
       
     # Run tests
     - name: Run unit-tests in image
@@ -44,6 +45,16 @@ jobs:
         && pytest -vvra /srv/tests'
     - name: Run image test
       run: tests/test-docker-image.sh "nuvious/proxpi:${{ github.ref_name }}"
+
+    # Build arm64 for testing
+    - name: Build and export to Docker
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        load: true
+        tags: nuvious/proxpi:${{ github.ref_name }}
+        platforms: linux/arm64
+        push: false
 
     # Run arm64 tests
     - name: Test Package
