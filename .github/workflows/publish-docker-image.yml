@@ -17,15 +17,13 @@ jobs:
         platforms: linux/arm64
         # platforms: linux/arm64,linux/arm/v6,linux/arm/v7
 
-    # Configure buildx to support multiple architectures
-    - name: Set up Docker Buildx
+    - name: Set up Docker Buildx to support multiple architectures
       uses: docker/setup-buildx-action@v3
       with:
         platforms: linux/amd64,linux/arm64
         # platforms: linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64/v8
     
-    # Build amd64 for testing
-    - name: Build and export to Docker
+    - name: Build amd64 for testing
       uses: docker/build-push-action@v5
       with:
         context: .
@@ -34,8 +32,7 @@ jobs:
         platforms: linux/amd64
         push: false
       
-    # Run tests
-    - name: Run unit-tests in image
+    - name: Run unit-tests in image for amd64
       run: docker run
         --rm
         --volume "$(pwd)/tests:/srv/tests"
@@ -46,8 +43,7 @@ jobs:
     - name: Run image test
       run: tests/test-docker-image.sh "nuvious/proxpi:${{ github.ref_name }}"
 
-    # Build arm64 for testing
-    - name: Build and export to Docker
+    - name: Build arm64 for testing
       uses: docker/build-push-action@v5
       with:
         context: .
@@ -56,8 +52,7 @@ jobs:
         platforms: linux/arm64
         push: false
 
-    # Run arm64 tests
-    - name: Test Package
+    - name: Run arm64 tests
       uses: addnab/docker-run-action@v3
       with:
         image: "nuvious/proxpi:${{ github.ref_name }}"
@@ -65,15 +60,17 @@ jobs:
           --platform linux/arm64
           --entrypoint ''
         run: |
-          sh -c 'pip install --requirement /srv/tests/requirements.txt && pytest -vvra /srv/tests'
-        shell: bash
+          uname -m
+          pip install --requirement /srv/tests/requirements.txt
+          pytest -vvra /srv/tests
+        shell: sh
     
-    # Build all architectures and push to dockerhub
     - name: Login to DockerHub
       run: >
         echo ${{ secrets.DOCKERHUB_PASSWORD }}
         | docker login --password-stdin -u nuvious
-    - name: Build and push
+
+    - name: Push all architectures
       uses: docker/build-push-action@v5
       with:
         context: .
