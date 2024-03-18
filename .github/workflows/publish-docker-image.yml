@@ -12,8 +12,8 @@ jobs:
         platform: [
           {suffix: amd64, name: linux/amd64},
           {suffix: arm64, name: linux/arm64},
-          {suffix: armv6, name: linux/armv6},
-          {suffix: armv7, name: linux/armv7}
+          {suffix: armv6, name: linux/arm/v6},
+          {suffix: armv7, name: linux/arm/v7}
         ]
     steps:
     # Checkout code
