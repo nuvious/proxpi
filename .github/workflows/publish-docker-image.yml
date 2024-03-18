@@ -53,16 +53,16 @@ jobs:
     - name: Run image test for ${{ matrix.platform.suffix }}
       run: tests/test-docker-image.sh "nuvious/proxpi:${{ github.ref_name }}-${{ matrix.platform.suffix }}"
     
-    # - name: Login to DockerHub
-    #   run: >
-    #     echo ${{ secrets.DOCKERHUB_PASSWORD }}
-    #     | docker login --password-stdin -u nuvious
+    - name: Login to DockerHub
+      run: >
+        echo ${{ secrets.DOCKERHUB_PASSWORD }}
+        | docker login --password-stdin -u nuvious
 
-    # - name: Push all architectures
-    #   uses: docker/build-push-action@v5
-    #   with:
-    #     context: .
-    #     platforms: linux/amd64,linux/arm64
-    #     # platforms: linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64/v8
-    #     push: true
-    #     tags: nuvious/proxpi:${{ github.ref_name }},nuvious/proxpi:latest
+    - name: Push all architectures
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        platforms: linux/amd64,linux/arm64
+        # platforms: linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64/v8
+        push: true
+        tags: nuvious/proxpi:${{ github.ref_name }},nuvious/proxpi:latest
