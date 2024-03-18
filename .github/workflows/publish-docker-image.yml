@@ -5,13 +5,15 @@ on:
     types: [created]
 
 jobs:
-  release:
+  build-and-test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         platform: [
           {suffix: amd64, name: linux/amd64},
-          {suffix: arm64, name: linux/arm64}
+          {suffix: arm64, name: linux/arm64},
+          {suffix: armv6, name: linux/armv6},
+          {suffix: armv7, name: linux/armv7}
         ]
     steps:
     # Checkout code
@@ -52,7 +54,19 @@ jobs:
 
     - name: Run image test for ${{ matrix.platform.suffix }}
       run: tests/test-docker-image.sh "nuvious/proxpi:${{ github.ref_name }}-${{ matrix.platform.suffix }}"
-    
+
+  build-and-release: 
+    needs: ['build-and-test']
+    runs-on: ubuntu-latest
+    steps:
+    # Checkout code
+    - uses: actions/checkout@v3
+
+    - name: Set up Docker Buildx to support multiple architectures
+      uses: docker/setup-buildx-action@v3
+      with:
+        platforms: linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64
+            
     - name: Login to DockerHub
       run: >
         echo ${{ secrets.DOCKERHUB_PASSWORD }}
@@ -62,7 +76,6 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         context: .
-        platforms: ${{ matrix.platform.name }}
-        # platforms: linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64/v8
+        platforms: linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64
         push: true
         tags: nuvious/proxpi:${{ github.ref_name }},nuvious/proxpi:latest
