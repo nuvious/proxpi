@@ -62,7 +62,7 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         context: .
-        platforms: linux/amd64,linux/arm64
+        platforms: ${{ matrix.platform.name }}
         # platforms: linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64/v8
         push: true
         tags: nuvious/proxpi:${{ github.ref_name }},nuvious/proxpi:latest
