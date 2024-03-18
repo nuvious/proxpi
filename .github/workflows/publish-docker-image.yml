@@ -28,7 +28,7 @@ jobs:
       with:
         context: .
         load: true
-        tags: nuvious/proxpi:${{ github.ref_name }}
+        tags: nuvious/proxpi:${{ github.ref_name }}-amd64
         platforms: linux/amd64
       
     - name: Run unit-tests in image for amd64
@@ -36,7 +36,7 @@ jobs:
         --rm
         --volume "$(pwd)/tests:/srv/tests"
         --entrypoint ''
-        "nuvious/proxpi:${{ github.ref_name }}"
+        "nuvious/proxpi:${{ github.ref_name }}-amd64"
         sh -c 'pip install --requirement /srv/tests/requirements.txt
         && pytest -vvra /srv/tests'
     - name: Run image test
@@ -47,23 +47,37 @@ jobs:
       with:
         context: .
         load: true
-        tags: nuvious/proxpi:${{ github.ref_name }}
+        tags: nuvious/proxpi:${{ github.ref_name }}-arm64
         platforms: linux/arm64
         push: false
 
-    - name: Run arm64 tests
-      uses: addnab/docker-run-action@v3
-      with:
-        image: "nuvious/proxpi:${{ github.ref_name }}"
-        options: |
-          --platform linux/arm64
-          --volume "./tests:/srv/tests"
-          --entrypoint ''
-        run: |
-          uname -m
-          pip install --requirement /srv/tests/requirements.txt
-          pytest -vvra /srv/tests
-        shell: sh
+    - name: Run unit-tests in image for amd64
+      run: |
+        docker run --rm --privileged \
+          multiarch/qemu-user-static --reset -p yes
+        docker run
+        --rm
+        --volume "$(pwd)/tests:/srv/tests"
+        --entrypoint ''
+        "nuvious/proxpi:${{ github.ref_name }}-arm64"
+        sh -c 'pip install --requirement /srv/tests/requirements.txt
+        && pytest -vvra /srv/tests'
+    - name: Run image test
+      run: tests/test-docker-image.sh "nuvious/proxpi:${{ github.ref_name }}"
+
+    # - name: Run arm64 tests
+    #   uses: addnab/docker-run-action@v3
+    #   with:
+    #     image: "nuvious/proxpi:${{ github.ref_name }}"
+    #     options: |
+    #       --platform linux/arm64
+    #       --volume "./tests:/srv/tests"
+    #       --entrypoint ''
+    #     run: |
+    #       uname -m
+    #       pip install --requirement /srv/tests/requirements.txt
+    #       pytest -vvra /srv/tests
+    #     shell: sh
     
     - name: Login to DockerHub
       run: >
