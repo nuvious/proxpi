@@ -14,22 +14,23 @@ jobs:
           {image-suffix: arm64, name: linux/arm64}
         ]
     steps:
-    # Checkout code
     - uses: actions/checkout@v4
 
     - name: Set up QEMU
+      if: ${{ matrix.platform.name != 'linux/amd64' }}
       uses: docker/setup-qemu-action@v3
       with:
         platforms: ${{ matrix.platform.name }}
 
     - name: Set up Docker Buildx to support multiple architectures
+      if: ${{ matrix.platform.name != 'linux/amd64' }}
       uses: docker/setup-buildx-action@v3
       with:
         platforms: ${{ matrix.platform.name }}
 
-    # https://www.stereolabs.com/docs/docker/building-arm-container-on-x86
-    - name: Setup multi-arch configuration for docker
-      run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+    # - name: Setup multi-arch configuration for docker
+    #   if: ${{ matrix.platform.name != 'linux/amd64' }}
+    #   run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 
     - name: Build ${{ matrix.platform.image-suffix }} for testing
       uses: docker/build-push-action@v5
@@ -55,7 +56,6 @@ jobs:
     needs: ['build-and-test']
     runs-on: ubuntu-latest
     steps:
-    # Checkout code
     - uses: actions/checkout@v3
 
     - name: Set up Docker Buildx to support multiple architectures
