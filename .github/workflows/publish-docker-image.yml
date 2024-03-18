@@ -22,7 +22,7 @@ jobs:
       with:
         platforms: linux/amd64,linux/arm64
         # platforms: linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64/v8
-    
+
     - name: Build amd64 for testing
       uses: docker/build-push-action@v5
       with:
@@ -30,7 +30,6 @@ jobs:
         load: true
         tags: nuvious/proxpi:${{ github.ref_name }}
         platforms: linux/amd64
-        push: false
       
     - name: Run unit-tests in image for amd64
       run: docker run
